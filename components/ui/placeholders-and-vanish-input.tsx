@@ -275,7 +275,9 @@ export function PlaceholdersAndVanishInput({
               <div className=" flex flex-col items-center justify-center space-y-4">
               <Laugh size={140} color="green" />
               <p className=" dark:text-white text-4xl">No Profanity Detected</p>
-           
+              <span className="text-4xl self-end">
+                {data?.performance}ms
+              </span>
               </div>
                )
           }
