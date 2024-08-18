@@ -25,7 +25,9 @@ export default  function PlaceholdersAndVanishInputDemo() {
         score:number
     },
     performance:number
-  }| undefined>(undefined);
+  }| undefined | {
+    error:string
+  }>(undefined);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value)
   };

@@ -4,25 +4,40 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../dailog";
-import { Frown, Laugh } from "lucide-react";
+import { CircleX, Frown, Laugh } from "lucide-react";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+type ProfanityData = {
+  isProfane: boolean;
+  word: {
+    word: string;
+    score: number;
+  };
+  performance: number;
+};
 
+type ErrorData = {
+  error: string;
+};
+
+type Data = ProfanityData | ErrorData | undefined;
 export function PlaceholdersAndVanishInput({
   placeholders,
   onChange,
   onSubmit,
   data,
 }: {
-  data:{
-    isProfane:boolean,
-    word:{
-        word:string,
-        score:number
-    },performance:number} | undefined,
+  data:Data,
   placeholders: string[];
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
+  const isErrorData = (data: Data): data is ErrorData => {
+    return (data as ErrorData)?.error !== undefined;
+  };
+  
+  const isProfanityData = (data: Data): data is ProfanityData => {
+    return (data as ProfanityData)?.isProfane !== undefined;
+  };
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -253,43 +268,47 @@ export function PlaceholdersAndVanishInput({
         </motion.svg>
       </button> </DialogTrigger>
       <DialogContent className="bg-black text-white">
-        <DialogHeader>
-        
-         
-            <DialogDescription>
-            <div className="flex justify-center items-center">
-          {
-            data && data.isProfane ? (
-              <div className="flex flex-col items-center justify-center space-y-4">
-              <Frown size={140} color="red" />
-              <p className="dark:text-white text-4xl">Profanity Detected</p>
-              <p className="dark:text-white text-4xl">
-                Word: {data.word.word} | Score: {data.word.score}
-              </p>
-              <span className="text-4xl self-end">
-                {data.performance}ms
-              </span>
+      <DialogHeader>
+  <DialogDescription>
+    <div className="flex justify-center items-center h-full">
+      {
+        data ? (
+          isErrorData(data) ? (
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <CircleX size={140} color="red" />
+              <p className="dark:text-white text-4xl">Error: {data.error}</p>
             </div>
-            
-            ) : (
-              <div className=" flex flex-col items-center justify-center space-y-4">
-              <Laugh size={140} color="green" />
-              <p className=" dark:text-white text-4xl">No Profanity Detected</p>
-              <span className="text-4xl self-end">
-                {data?.performance}ms
-              </span>
+          ) : isProfanityData(data) ? (
+            data.isProfane ? (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Frown size={140} color="red" />
+                <p className="dark:text-white text-4xl">Profanity Detected</p>
+                <p className="dark:text-white text-4xl">
+                  Word: {data.word.word} | Score: {data.word.score}
+                </p>
+                <span className="text-4xl self-end">
+                  {data.performance}ms
+                </span>
               </div>
-               )
-          }
+            ) : (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Laugh size={140} color="green" />
+                <p className="dark:text-white text-4xl">No Profanity Detected</p>
+                <span className="text-4xl self-end">
+                  {data.performance}ms
+                </span>
+              </div>
+            )
+          ) : null
+        ) : (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <p className="dark:text-white text-4xl">Loading...</p>
           </div>
-            </DialogDescription>
-          
-         
-          
-          
-       
-         
-        </DialogHeader>
+        )
+      }
+    </div>
+  </DialogDescription>
+</DialogHeader>
       </DialogContent>
       </Dialog>
   
